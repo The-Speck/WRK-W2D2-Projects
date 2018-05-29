@@ -1,37 +1,43 @@
 require_relative 'piece.rb'
 
+class SamePositionError < StandardError; end
+class StartPositionNull < StandardError; end
+class EndPositionNil < StandardError; end
+
 class Board
-  
-  def initialize 
+
+  def initialize
     @grid = Array.new(8){Array.new(8)}
     populate
-    # @grid = Board.populate
+    # @grid = Board.populate => Alternative population style. Used in junction with Board.populate
   end
-  
+
   def [](pos)
     row, col = pos
     grid[row][col]
   end
-  
+
   def []=(pos, target)
     row, col = pos
     grid[row][col] = target
   end
-  
+
+  # Alternative population method
   # def self.populate
   #   local_board = Array.new(8) {Array.new(8)}
   #   local_board.each_with_index do |row, row_idx|
   #     row.each_with_index do |col, col_idx|
   #       if row_idx < 2 || row_idx > 5
   #         local_board[row_idx][col_idx] = Piece.new
-  #       else
+  #       else0
   #         local_board[row_idx][col_idx] = NullPiece.new
   #       end
   #     end
   #   end
-  # 
+  #
   #   local_board
   # end
+
   def populate
     grid.each_with_index do |row, row_idx|
       row.each_with_index do |col, col_idx|
@@ -39,40 +45,41 @@ class Board
         if row_idx < 2 || row_idx > 5
           self[pos]= Piece.new
         else
-          self[pos]= NullPiece.new
+          self[pos]= NullPiece.instance
         end
       end
     end
   end
-  
+
   def display
     grid.each do |row|
       p row
     end
   end
-  
+
   def move_piece(start_pos, end_pos)
     begin
       if start_pos == end_pos
-        raise "Start pos cannot be the same as end pos"
+        raise SamePositionError
       elsif grid[start_pos].is_a? NullPiece
-        raise "There's no piece at the start position"
+        raise StartPositionNull
       elsif grid[end_pos].nil?
-        raise "Cannot move there"
+        raise EndPositionNil
       end
-      
-      grid[start_pos], grid[end_pos] = NullPiece.new, grid[start_pos]
-    rescue => error
-      puts error
-      start_pos = gets.chomp.split(",").map(&:to_i)
-      puts error
-      end_pos = gets.chomp.split(",").map(&:to_i)
-      move_piece(start_pos, end_pos)
+
+      grid[start_pos], grid[end_pos] = NullPiece.instance, grid[start_pos]
+    rescue SamePositionError => error
+      puts "Start pos cannot be the same as end pos"
+    rescue StartPositionNull => error
+      puts "There's no piece at the start position"
+    rescue EndPositionNil => error
+      puts "Your end position is out of bounds"
     end
-  end 
-  
+  end
+
+
   attr_reader :grid
 end
 
-# grid = Board.new
-# board.display
+grid = Board.new
+grid.display
