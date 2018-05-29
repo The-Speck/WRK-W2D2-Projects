@@ -55,8 +55,8 @@ class Board
         raise PositionError.new("Start pos cannot be the same as end pos")
       elsif self[start_pos].is_a? NullPiece
         raise PositionError.new("There's no piece at the start position")
-      elsif invalid_pos?(start_pos,end_pos)
-        raise PositionError.new("Your position(s) is out of bounds")
+      # elsif invalid_pos?(start_pos,end_pos)
+      #   raise PositionError.new("Your position(s) is out of bounds")
       else 
         self[start_pos], self[end_pos] = NullPiece.instance, self[start_pos]
       end
@@ -65,8 +65,8 @@ class Board
     end
   end
   
-  def invalid_pos?(start_pos,end_pos)
-    (start_pos + end_pos).any?{|v| v > 7 || v < 0}
+  def invalid_pos?(pos)
+    pos.any?{|v| v > 7 || v < 0}
   end 
 
   attr_reader :grid
