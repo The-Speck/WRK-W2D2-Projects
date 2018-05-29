@@ -1,8 +1,6 @@
 require_relative 'piece.rb'
 
-class SamePositionError < StandardError; end
-class StartPositionNull < StandardError; end
-class PositionNil < StandardError; end
+class PositionError < StandardError; end
 
 class Board
 
@@ -51,38 +49,28 @@ class Board
     end
   end
 
-  def display
-    grid.each do |row|
-      p row
-    end
-  end
-
   def move_piece(start_pos, end_pos)
     begin
-      
-    
       if start_pos == end_pos
-        raise SamePositionError
+        raise PositionError.new("Start pos cannot be the same as end pos")
       elsif self[start_pos].is_a? NullPiece
-        raise StartPositionNull
-      elsif (start_pos + end_pos).any?{|v| v > 7 || v < 0}
-        raise PositionNil
+        raise PositionError.new("There's no piece at the start position")
+      elsif invalid_pos?(start_pos,end_pos)
+        raise PositionError.new("Your position(s) is out of bounds")
       else 
         self[start_pos], self[end_pos] = NullPiece.instance, self[start_pos]
       end
-      
-    rescue SamePositionError => error
-      puts "Start pos cannot be the same as end pos"
-    rescue StartPositionNull => error
-      puts "There's no piece at the start position"
-    rescue PositionNil => error
-      puts "Your position(s) is out of bounds"
+    rescue PositionError => error
+      puts error.message
     end
   end
-
+  
+  def invalid_pos?(start_pos,end_pos)
+    (start_pos + end_pos).any?{|v| v > 7 || v < 0}
+  end 
 
   attr_reader :grid
 end
-
-grid = Board.new
-grid.display
+# 
+# grid = Board.new
+# grid.display
